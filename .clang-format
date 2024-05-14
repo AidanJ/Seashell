@@ -1,0 +1,12 @@
+---
+BasedOnStyle: LLVM
+ColumnLimit: 80
+Standard: Latest
+AlignAfterOpenBracket: BlockIndent
+NamespaceIndentation: All
+AlignTrailingComments: Never
+PointerAlignment: Left
+AllowAllParametersOfDeclarationOnNextLine: true
+Cpp11BracedListStyle: true
+AlignConsecutiveDeclarations: false
+...
