@@ -80,7 +80,10 @@ auto main(int argc, char** argv) -> int {
 
   display_prompt();
   for (std::string line;
-       std::getline(std::cin >> std::ws, line) && line != "exit";) {
+       std::getline(std::cin >> std::ws, line);) {
+    if(line == "exit") {
+      break;
+    }
     execute_command(line);
     display_prompt();
   }
