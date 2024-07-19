@@ -8,6 +8,12 @@ project('seashell', 'cpp', 'c',
 
 src_files = [
   'src/main.cpp',
+  'src/Token.hpp',
+  'src/Token.cpp',
+  'src/Lexer.hpp',
+  'src/Lexer.cpp',
+  'src/Log.hpp',
+  'src/Expr.hpp'
 ]
 
 executable(
