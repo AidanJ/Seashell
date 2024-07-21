@@ -9,15 +9,19 @@
 namespace {
   using Kind = Token::Kind;
   std::unordered_map<std::string_view, Token::Kind> keywords{
+      {"(", Kind::LEFT_PAREN},
+      {")", Kind::RIGHT_PAREN},
+      {"[", Kind::LEFT_BRACE},
+      {"]", Kind::RIGHT_BRACE},
+      {",", Kind::COMMA},
+      {":", Kind::COLLON},
+      {".", Kind::DOT},
+      {"-", Kind::MINUS},
+      {"+", Kind::PLUS},
+      {";", Kind::SEMICOLON},
+      {"/", Kind::SLASH},
+      {"*", Kind::STAR},
       {"&&", Kind::AND},
-      {">", Kind::GREATER},
-      {">=", Kind::GREATER_EQUAL},
-      {"=", Kind::EQUAL},
-      {"==", Kind::EQUAL_EQUAL},
-      {"!", Kind::BANG},
-      {"!=", Kind::BANG_EQUAL},
-      {"<", Kind::LESS},
-      {"<=", Kind::LESS_EQUAL},
       {"begin", Kind::BEGIN},
       {"end", Kind::END},
       {"else", Kind::ELSE},
@@ -63,41 +67,37 @@ Lexer::receive_tokens(std::optional<std::string_view> const next_source
       continue;
     }
     switch (peek()) {
-    case '(':
-      tokens.emplace_back(Token::Kind::LEFT_PAREN, line_);
+    case '=':
+      if(peek_next() == '=') {
+        tokens.emplace_back(Token::Kind::EQUAL_EQUAL, line_);
+        advance();
+      } else {
+        tokens.emplace_back(Token::Kind::EQUAL, line_);
+      }
       break;
-    case ')':
-      tokens.emplace_back(Token::Kind::RIGHT_PAREN, line_);
+    case '!':
+      if(peek_next() == '=') {
+        tokens.emplace_back(Token::Kind::BANG_EQUAL, line_);
+        advance();
+      } else {
+        tokens.emplace_back(Token::Kind::BANG, line_);
+      }
       break;
-    case '[':
-      tokens.emplace_back(Token::Kind::LEFT_BRACE, line_);
+    case '>':
+      if(peek_next() == '=') {
+        tokens.emplace_back(Token::Kind::GREATER_EQUAL, line_);
+        advance();
+      } else {
+        tokens.emplace_back(Token::Kind::GREATER, line_);
+      }
       break;
-    case ']':
-      tokens.emplace_back(Token::Kind::RIGHT_BRACE, line_);
-      break;
-    case ',':
-      tokens.emplace_back(Token::Kind::COMMA, line_);
-      break;
-    case ':':
-      tokens.emplace_back(Token::Kind::COMMA, line_);
-      break;
-    case '.':
-      tokens.emplace_back(Token::Kind::DOT, line_);
-      break;
-    case '-':
-      tokens.emplace_back(Token::Kind::MINUS, line_);
-      break;
-    case '+':
-      tokens.emplace_back(Token::Kind::PLUS, line_);
-      break;
-    case ';':
-      tokens.emplace_back(Token::Kind::SEMICOLON, line_);
-      break;
-    case '/':
-      tokens.emplace_back(Token::Kind::SLASH, line_);
-      break;
-    case '*':
-      tokens.emplace_back(Token::Kind::STAR, line_);
+    case '<':
+      if(peek_next() == '=') {
+        tokens.emplace_back(Token::Kind::LESS_EQUAL, line_);
+        advance();
+      } else {
+        tokens.emplace_back(Token::Kind::LESS, line_);
+      }
       break;
     case '"': {
       auto const string = read_string();
