@@ -20,6 +20,7 @@ private:
 
   [[nodiscard]] auto peek() const -> char;
   [[nodiscard]] auto peek_last() const -> char;
+  [[nodiscard]] auto peek_next() const -> char;
   [[nodiscard]] auto is_eof() const -> bool;
 
   auto advance() -> void;

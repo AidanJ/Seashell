@@ -4,8 +4,6 @@
 #include <string>
 #include <unordered_map>
 
-#include <fmt/core.h>
-
 // Unnamed / anonymous namespaces are preferred over globally declared variables
 // which are specified as static
 namespace {
@@ -121,16 +119,11 @@ Lexer::receive_tokens(std::optional<std::string_view> const next_source
     default: {
       if (std::isdigit(peek(), locale)) {
         auto const number = read_number();
-        if (is_eof() || is_whitespace(peek())) {
-          tokens.emplace_back(Token::Kind::NUMBER, line_, number);
-        } else {
-          // TODO: Syntax error
-        }
+        tokens.emplace_back(Token::Kind::NUMBER, line_, number);
         break;
       }
 
       auto const keyword = read_keyword();
-      fmt::println("Keyword: {}", keyword);
       if (keywords.contains(keyword)) {
         tokens.emplace_back(keywords[keyword], line_);
       } else {
@@ -155,10 +148,17 @@ Lexer::receive_tokens(std::optional<std::string_view> const next_source
 }
 
 [[nodiscard]] auto Lexer::peek_last() const -> char {
-  if(pos_ == 0) {
-    return '\0';
+  if (pos_ > 0) {
+    return source_[pos_ - 1];
   }
-  return source_[pos_ - 1];
+  return '\0';
+}
+
+[[nodiscard]] auto Lexer::peek_next() const -> char {
+  if (pos_ + 1 != source_.size()) {
+    return source_[pos_ + 1];
+  }
+  return '\0';
 }
 
 [[nodiscard]] auto Lexer::is_eof() const -> bool {
@@ -191,23 +191,29 @@ auto Lexer::skip_line() -> void {
 // NOTE: returning a string_view is usually not a good idea (or any view without
 // ownership) but in this case the returned type is ensured to be valid while
 // source_'s resources exist
+
+// TODO: Allow digits in identifier's name
 [[nodiscard]] auto Lexer::read_keyword() -> std::string_view {
   auto const begin = pos_;
-  for (; !is_eof() && !is_whitespace(peek()); ++pos_) {
-    if (!std::isalpha(peek(), locale)) {
+  for (; !is_eof() && !is_whitespace(peek_next()); advance()) {
+    if (!std::isalpha(peek_next(), locale)) {
       // TODO: Fatal error
+      break;
     }
   }
 
-  return source_.substr(begin, pos_ - begin);
+  return source_.substr(begin, pos_ + 1 - begin);
 }
+
+// TODO: Allow single-line strings only
 [[nodiscard]] auto Lexer::read_string() -> std::string_view {
   auto const begin = pos_;
 
   advance();
-  for (; !is_eof() && peek() != '"'; ++pos_) {
+  for (; !is_eof() && peek() != '"'; advance()) {
   }
   if (is_eof()) {
+    // set pos to begin
     // TODO: Syntax error
   }
 
@@ -218,13 +224,13 @@ auto Lexer::skip_line() -> void {
   auto const begin = pos_;
   bool after_decimal_point = false;
 
-  for (; !is_eof() && (std::isdigit(peek(), locale) ||
-                       (peek() == '.' && !after_decimal_point));
-       ++pos_) {
-    if (peek() == '.') {
+  for (; !is_eof() && (std::isdigit(peek_next(), locale) ||
+                       (peek_next() == '.' && !after_decimal_point));
+       advance()) {
+    if (peek_next() == '.') {
       after_decimal_point = true;
     }
   }
 
-  return std::stod(std::string{source_.substr(begin, pos_ - begin)});
+  return std::stod(std::string{source_.substr(begin, pos_ + 1 - begin)});
 }
