@@ -13,7 +13,9 @@ src_files = [
   'src/Lexer.hpp',
   'src/Lexer.cpp',
   'src/Log.hpp',
-  'src/Expr.hpp'
+  'src/Expr.hpp',
+  'src/Parser.hpp',
+  'src/Parser.cpp',
 ]
 
 executable(
