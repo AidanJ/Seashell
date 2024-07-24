@@ -16,6 +16,8 @@ src_files = [
   'src/Expr.hpp',
   'src/Parser.hpp',
   'src/Parser.cpp',
+  'src/Interpreter.hpp',
+  'src/Interpreter.cpp',
 ]
 
 executable(
