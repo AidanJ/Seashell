@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 #include <stdexcept>
 
+// TODO: Return optional while error gets reported here
 [[nodiscard]] auto
 Parser::receive_expressions(std::optional<std::vector<Token>> tokens
 ) -> std::variant<Expr::T, std::string> {
@@ -141,7 +142,7 @@ Parser::match_kind(std::initializer_list<Token::Kind> const target) -> bool {
 [[nodiscard]] auto Parser::primary() -> Expr::T {
   using Kind = Token::Kind;
   if (match_kind({Kind::TRUE, Kind::FALSE, Kind::STRING, Kind::NUMBER})) {
-    return Expr::Literal{peek_last()};
+    return Expr::Literal::init(peek_last());
   }
   if (match_kind({Kind::LEFT_PAREN})) {
     auto expr = expression();

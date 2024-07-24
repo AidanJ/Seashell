@@ -21,16 +21,23 @@ namespace Expr {
 
   // Might be a good idea forcing explicit `make_shared` calls instead of hiding
   // heap allocation inside the expression interfaces
+  using LiteralPtr = std::shared_ptr<Literal>;
   using GroupingPtr = std::shared_ptr<Grouping>;
   using UnaryPtr = std::shared_ptr<Unary>;
   using BinaryPtr = std::shared_ptr<Binary>;
 
-  using T = std::variant<Literal, BinaryPtr, UnaryPtr, GroupingPtr>;
+  // TODO: Move Ptr types to `detail`?
+  using T = std::variant<LiteralPtr, BinaryPtr, UnaryPtr, GroupingPtr>;
 
   // TODO: Make Literal consistent with the others? or should terminal
   // expressions not have `init` as an initialization option
   struct Literal {
     Token const token;
+
+    static inline auto init(Token token) -> std::shared_ptr<Literal> {
+      // TODO: Check if copy constructed by using aggregate initialization
+      return std::make_shared<Literal>(std::move(token));
+    }
   };
 
   struct Grouping {
@@ -75,7 +82,7 @@ namespace Expr {
   inline auto display(T const& expression) -> std::string {
     return std::visit(
         overloads{
-            [](Literal const& expr) { return expr.token.display(); },
+            [](LiteralPtr const& expr) { return expr->token.display(); },
             [](GroupingPtr const& expr) -> std::string {
               return fmt::format("({})", display(expr->expression));
             },
